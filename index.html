@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Scale Calibration</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+        .hidden {
+            display: none;
+        }
+        .green-bg {
+            background-color: green;
+        }
+        #message {
+            font-size: 1.5em;
+            color: white;
+        }
+        .logo {
+            position: absolute;
+            top: 10px;  /* Adjusted closer to the top */
+            left: 10px; /* Adjusted closer to the left */
+            width: 300px; /* Increased the size of the logo */
+        }
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            width: 100%;
+            background-color: #D32F2F; /* Red color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #B71C1C; /* Darker red */
+        }
+    </style>
+</head>
+<body>
+    <img src="thermofisher_logo.png" alt="Thermo Fisher Scientific Logo" class="logo" id="logo">
+    <div class="container" id="assetNumberPage">
+        <label for="assetNumber">Enter Scale Asset Number:</label>
+        <input type="text" id="assetNumber" required>
+        <button id="assetBtn">OK</button>
+    </div>
+    <div class="container hidden" id="weightPage">
+        <label for="weightAmount">Enter Weight Amount:</label>
+        <input type="number" step="0.001" id="weightAmount" required>
+        <button id="weightBtn">Submit</button>
+    </div>
+    <div id="message" class="hidden"></div>
+
+    <script>
+        let currentAssetNumber;
+
+        document.getElementById('assetBtn').addEventListener('click', function() {
+            const assetNumber = document.getElementById('assetNumber').value;
+            if (assetNumber) {
+                currentAssetNumber = assetNumber;
+                document.getElementById('assetNumberPage').classList.add('hidden');
+                document.getElementById('weightPage').classList.remove('hidden');
+            } else {
+                alert('Please enter the scale asset number.');
+            }
+        });
+
+        document.getElementById('weightBtn').addEventListener('click', function() {
+            const weightAmount = document.getElementById('weightAmount').value;
+            const message = document.getElementById('message');
+            const logo = document.getElementById('logo');
+            let isValid = true;
+
+            if (currentAssetNumber === '6867') {
+                if (!/^\d+\.\d{3}$/.test(weightAmount)) {
+                    alert('The weight amount for asset number 6867 must have 3 decimal places.');
+                    isValid = false;
+                } else if (parseFloat(weightAmount) > 50.002 || parseFloat(weightAmount) < 49.998) {
+                    message.textContent = "The scale is out of range! Notify your Group Leader for further instructions.";
+                    message.style.color = 'red';
+                    message.classList.remove('hidden');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 5000);
+                    isValid = false;
+                }
+            } else if (currentAssetNumber === '4500') {
+                if (!/^\d+\.\d{2}$/.test(weightAmount)) {
+                    alert('The weight amount for asset number 4500 must have 2 decimal places.');
+                    isValid = false;
+                } else if (parseFloat(weightAmount) > 50.02 || parseFloat(weightAmount) < 49.99) {
+                    message.textContent = "The scale is out of range! Notify your Group Leader for further instructions.";
+                    message.style.color = 'red';
+                    message.classList.remove('hidden');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 5000);
+                    isValid = false;
+                }
+            }
+
+            if (isValid) {
+                document.body.classList.add('green-bg');
+                document.getElementById('weightPage').classList.add('hidden');
+                logo.classList.add('hidden'); // Hide the logo
+                message.textContent = "Thank you!";
+                message.style.color = 'white';
+                message.classList.remove('hidden');
+            }
+        });
+
+        // Function to show the alert daily
+        function dailyAlert() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            // Set the time for the daily alert (e.g., 9:00 AM)
+            if (hours === 9 && minutes === 0) {
+                alert('Time to perform scale calibration!');
+            }
+        }
+
+        // Check every minute
+        setInterval(dailyAlert, 60000);
+    </script>
+</body>
+</html>
